@@ -1,0 +1,40 @@
+name: service_bus_geo_recovery_config
+on:
+  workflow_call:
+    inputs:
+      primary_servicebus_resource_group_name:
+        required: true
+        type: string
+      primary_servicebus_aliasname:
+        required: true
+        type: string
+      primary_servicebus_namespace_name:
+        required: true
+        type: string
+      secondary_servicebus_namespaceId:
+        required: true
+        type: string
+    secrets:
+      AZURE_CREDENTIALS_DELOITTE_SUB:
+        required: true
+jobs:  
+  service_bus_geo_recovery_config:
+    permissions:
+      contents: none
+    runs-on: ubuntu-latest       
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2
+      with:
+        repository: SNawazmac/servicebus_geo_recovery_config
+    - name: Login via Az module
+      uses: azure/login@v1
+      with:
+        creds: ${{secrets.AZURE_CREDENTIALS_DELOITTE_SUB}}
+        enable-AzPSSession: true
+    - name: servicebus_geo_recovery_config
+      uses: azure/powershell@v1
+      with:
+        inlineScript: |
+          ./service_bus_geo_recovery_config.ps1 -primary_servicebus_resource_group_name "${{ inputs.primary_servicebus_resource_group_name }}" -primary_servicebus_aliasname "${{ inputs.primary_servicebus_aliasname }}" -primary_servicebus_namespace_name "${{ inputs.primary_servicebus_namespace_name }}" -secondary_servicebus_namespaceId "${{ inputs.secondary_servicebus_namespaceId }}"
+        azPSVersion: "latest"
